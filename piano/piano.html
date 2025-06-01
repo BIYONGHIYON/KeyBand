@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>piano</title>
+    <style>
+        html, body{/*피아노 배경색 검정*/
+            margin:0px;
+            background-color: black;
+        }
+        div{/*흰 건반 위 검은건반을 위한 절대배치*/
+            display: inline-block;
+            position: absolute;
+        }
+        .white-keys { z-index: 1; }/*흰건반 젤아래*/
+        .black-keys { z-index: 2; }/*검은건반 흰건반 위*/
+        .piano {
+            width: 855px; /*피아노 전체크기 제한*/
+            height: 395px;
+            overflow: hidden; /*영역 넘어가면 자름*/
+            position: relative;/*자식 absolute 요소의 기준으로 사용됨*/
+        }
+        .key{
+            transition: filter 0.2s, box-shadow 0.2s;/*마우스올릴때 부드러운호과*/
+            cursor: pointer;/*마우스올리면 커서변경*/
+            position: relative;
+        }
+        .key:active {/*마우스클릭할때 그림자*/
+            filter: brightness(1.2);
+            filter: drop-shadow(0 0 10px red);
+            z-index: 3;/*클릭시 z-index 증가*/
+        }
+        .key.active{/*키보드 연주할 때 그림자*/
+            filter: brightness(1.2);
+            filter: drop-shadow(0 0 10px red);
+            z-index: 3; /*키보드 입력 시 z-index 증가*/
+        }
+    </style>
+</head>
+<body>
+    <div class="piano">
+        <div class="white-keys"><!--흰 건반, 도,레,미 건반을 이용해 복붙 후 위치조정-->
+            <div class="div_key" style="left: 0px;">
+                <img src="piano_C.jpg" class="key" onclick="playNote('F_low')">
+                <!--onclick속성을 통해 함수 실행 > 클릭 시 해당 음악재생되도록-->
+            </div>
+            <div class="div_key" style="left: 50px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('G_low')">
+            </div>
+            <div class="div_key" style="left: 100px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('A_low')">
+            </div>
+            <div class="div_key" style="left: 150px;">
+                <img src="piano_E.jpg" class="key" onclick="playNote('B_low')">
+            </div>
+            <div class="div_key" style="left: 200px;">
+                <img src="piano_C.jpg" class="key" onclick="playNote('C_middle')">
+            </div>
+            <div class="div_key" style="left: 250px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('D_middle')">
+            </div>
+            <div class="div_key" style="left: 300px;">
+                <img src="piano_E.jpg" class="key" onclick="playNote('E_middle')">
+            </div>
+            <div class="div_key" style="left: 350px;">
+                <img src="piano_C.jpg" class="key" onclick="playNote('F_middle')">
+            </div>
+            <div class="div_key" style="left: 400px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('G_middle')">
+            </div>
+            <div class="div_key" style="left: 450px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('A_middle')">
+            </div>
+            <div class="div_key" style="left: 500px;">
+                <img src="piano_E.jpg" class="key" onclick="playNote('B_middle')">
+            </div>
+            <div class="div_key" style="left: 550px;">
+                <img src="piano_C.jpg" class="key" onclick="playNote('C_high')">
+            </div>
+            <div class="div_key" style="left: 600px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('D_high')">
+            </div>
+            <div class="div_key" style="left: 650px;">
+                <img src="piano_E.jpg" class="key" onclick="playNote('E_high')">
+            </div>
+            <div class="div_key" style="left: 700px;">
+                <img src="piano_C.jpg" class="key" onclick="playNote('F_high')">
+            </div>
+            <div class="div_key" style="left: 750px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('G_high')">
+            </div>
+            <div class="div_key" style="left: 800px;">
+                <img src="piano_D.jpg" class="key" onclick="playNote('A_high')">
+            </div>
+        </div>
+      
+        <div class="black-keys"><!--검은건반, 레플렛 미플렛 이용해 복붙 후 위치조정-->
+            <div class="div_key" style="left: 35px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Gb_low')">
+            </div>
+            <div class="div_key" style="left: 85px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Ab_low')">
+            </div>
+            <div class="div_key" style="left: 137px;">
+                <img src="piano_Eb.jpg" class="key" onclick="playNote('Bb_low')">
+            </div>
+            <div class="div_key" style="left: 235px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Db_middle')">
+            </div>
+            <div class="div_key" style="left: 287px;">
+                <img src="piano_Eb.jpg" class="key" onclick="playNote('Eb_middle')">
+            </div>
+            <div class="div_key" style="left: 385px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Gb_middle')">
+            </div>
+            <div class="div_key" style="left: 435px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Ab_middle')">
+            </div>
+            <div class="div_key" style="left: 487px;">
+                <img src="piano_Eb.jpg" class="key" onclick="playNote('Bb_middle')">
+            </div>
+            <div class="div_key" style="left: 585px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Db_high')">
+            </div>
+            <div class="div_key" style="left: 637px;">
+                <img src="piano_Eb.jpg" class="key" onclick="playNote('Eb_high')">
+            </div>
+            <div class="div_key" style="left: 735px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Gb_high')">
+            </div>
+            <div class="div_key" style="left: 785px;">
+                <img src="piano_Db.jpg" class="key" onclick="playNote('Ab_high')">
+            </div>
+            <div class="div_key" style="left: 837px;">
+                <img src="piano_Eb.jpg" class="key" onclick="playNote('Bb_high')">
+            </div>
+        </div>
+    </div>
+    <script>
+        //각 건반의 오디오 객체를 미리 생성해서 audioMap에 저장
+        const audioMap = {
+            'F_low': new Audio('audio/F_low.mp3'),
+            'G_low': new Audio('audio/G_low.mp3'),
+            'A_low': new Audio('audio/A_low.mp3'),
+            'B_low': new Audio('audio/B_low.mp3'),
+            'C_middle': new Audio('audio/C_middle.mp3'),
+            'D_middle': new Audio('audio/D_middle.mp3'),
+            'E_middle': new Audio('audio/E_middle.mp3'),
+            'F_middle': new Audio('audio/F_middle.mp3'),
+            'G_middle': new Audio('audio/G_middle.mp3'),
+            'A_middle': new Audio('audio/A_middle.mp3'),
+            'B_middle': new Audio('audio/B_middle.mp3'),
+            'C_high': new Audio('audio/C_high.mp3'),
+            'D_high': new Audio('audio/D_high.mp3'),
+            'E_high': new Audio('audio/E_high.mp3'),
+            'F_high': new Audio('audio/F_high.mp3'),
+            'G_high': new Audio('audio/G_high.mp3'),
+            'A_high': new Audio('audio/A_high.mp3'),
+            'Gb_low': new Audio('audio/Gb_low.mp3'),
+            'Ab_low': new Audio('audio/Ab_low.mp3'),
+            'Bb_low': new Audio('audio/Bb_low.mp3'),
+            'Db_middle': new Audio('audio/Db_middle.mp3'),
+            'Eb_middle': new Audio('audio/Eb_middle.mp3'),
+            'Gb_middle': new Audio('audio/Gb_middle.mp3'),
+            'Ab_middle': new Audio('audio/Ab_middle.mp3'),
+            'Bb_middle': new Audio('audio/Bb_middle.mp3'),
+            'Db_high': new Audio('audio/Db_high.mp3'),
+            'Eb_high': new Audio('audio/Eb_high.mp3'),
+            'Gb_high': new Audio('audio/Gb_high.mp3'),
+            'Ab_high': new Audio('audio/Ab_high.mp3'),
+            'Bb_high': new Audio('audio/Bb_high.mp3')
+        };
+        
+        for (let note in audioMap)// 미리 오디오파일 불러옴 > 속도 향상
+            audioMap[note].preload = "auto";
+        
+        
+        function playNote(note) {//특정 음 재생함수
+            const audio = audioMap[note];//note에 맞는 오디오객체 가져옴
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play();//해당 음이 존재하면 처음부터 재생
+            }
+            //해당 note에 대응하는 img태그 찾아 active 클래스생성
+            const keys = document.querySelectorAll('.key');//모든 키 이미지요소 가져옴
+            keys.forEach(key => {
+                //onclick속성에 해당 note 이름이 포함된 키를 찾음
+                if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
+                    key.classList.add('active');//active클래스 추가
+                    setTimeout(() => key.classList.remove('active'), 200);//0.2초간 유지
+                }
+            });
+        }
+
+        const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
+            //왼손
+            'q': 'F_low',
+            '2': 'Gb_low',
+            'w': 'G_low',
+            '3': 'Ab_low',
+            'e': 'A_low',
+            '4': 'Bb_low',
+            'r': 'B_low',
+            't': 'C_middle',
+            '6': 'Db_middle',
+            'y': 'D_middle',
+            '7': 'Eb_middle',
+            'u': 'E_middle',
+            'i': 'F_middle',
+            '9': 'Gb_middle',
+            'o': 'G_middle',
+
+            //오른손
+            'd': 'Ab_middle',
+            'c': 'A_middle',
+            'f': 'Bb_middle',
+            'v': 'B_middle',
+            'b': 'C_high',
+            'h': 'Db_high',
+            'n': 'D_high',
+            'j': 'Eb_high',
+            'm': 'E_high',
+            ',': 'F_high',
+            'l': 'Gb_high',
+            '.': 'G_high',
+            ';': 'Ab_high',
+            '/': 'A_high',
+            '\'': 'Bb_high'
+        };
+        document.addEventListener('keydown', function(event) {//키보드 입력으로 실행되는 이벤트
+            const note = keyMap[event.key.toLowerCase()];//키를 소문자로 변환한 후 해당 건반음가져옴
+            if (note)//해당하는 음이 있다면
+                playNote(note);//해당하는 음 재생(함수 실행)
+        });
+    </script>
+</body>
+</html>

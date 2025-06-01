@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>KeyBand</title>
+    <style>
+        @import url("KeyBand.css");/*css파일 분리해서 작성*/
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Orbitron:wght@500&family=Raleway:wght@400&display=swap" rel="stylesheet"><!--구글에서 제공하는 폰트 사용하기 위한 폰트 스타일시트-->
+</head>
+<body>
+    <header><!--시멘틱태그로 구조화-->
+        <h1 class="title">KeyBand</h1><!--제목-->
+        <h1 class="subtitle">Your Keyboard Becomes Your Band</h1><!--부제목-->
+    </header>
+    <nav><!--하이퍼링크와 버튼을 이용해 버튼을 누르면 아이프레임에 해당 악기 이미지 출력-->
+        악기를 선택하세요!<br><br>
+        <a href="piano/piano.html", target="footer"><!--클릭시 하단 iframe에 piano.html출력-->
+            <button class="instrument_button" id="piano"
+            onclick="selectInstrument('피아노'); 
+            document.getElementById('instrument_key').src = 'piano/piano_key.png';">
+            <!--피아노 선택버튼, 선택된 악기명 표시하는 함수 호출, 조작법 이미지 피아노로 변경-->
+            </button>&emsp;
+        </a>
+        <a href="drum/drum.html", target="footer"><!--클릭시 하단 iframe에 drum.html출력-->
+            <button class="instrument_button" id="drum"
+            onclick="selectInstrument('드럼'); 
+            document.getElementById('instrument_key').src = 'drum/drum_key.png';">
+            <!--드럼 선택버튼, 선택된 악기명 표시하는 함수 호출, 조작법 이미지 드럼으로 변경-->
+            </button>
+        </a>
+        <br><br>현재 선택된 악기 : <span id="selectedInstrument">없음</span><!--js로 선택된 악기 출력함-->
+    </nav>
+    <section>
+        조작법<br>
+        <div id="div_instrument_key"><!--이미지 중앙정렬을 위한 블록태그-->
+            <img id="instrument_key" src=""><!--js로 이미지 변경을 위한 img태그-->
+        </div>
+    </section>
+    <aside><!--아직 구현 안됨, 컨트롤바와 녹음,다운로드 버튼 출력-->
+        연주를 녹음하고 저장해보세요.<br>
+        재생중인 연주와 동시연주가 가능합니다!<br><br>
+        <input type="file" id="upload_file" accept="audio/*" hidden><!--파일버튼 생성하나 숨기고 이미지로 버튼 대체-->
+        <label for="upload_file" class="upload_button">
+            <img src="buttons/upload.png" class="upload_img" width="20px" height="20px"><br>
+        </label>
+        &nbsp;<input type="checkbox" id="recode_check" hidden><!--체그박스 생성하나 숨기고 이미지로 버튼 대체-->
+        <label for="recode_check" class="recode_button">
+            <img src="buttons/recode.png" class="recode_img" width="20px" height="20px">
+            <span class="recode_text">
+                &nbsp;&nbsp;REC&nbsp;&nbsp;&nbsp;
+            </span>
+            <span id="record_time"></span>
+        </label>
+        
+        &nbsp;<a id="download_link" href="" download><!--다운로드 링크를 이미지버튼으로 삽입-->
+            <input type="button" id="download_file" hidden>
+            <label for="download_file" class="download_button">
+                <img src="buttons/download.png" class="download_img" width="20px" height="20px">
+            </label>
+        </a><br><br>
+        <audio id="playback" controls></audio>
+    </aside>
+    <footer><!--악기를 선택하면 해당 악기 이미지를 선택하는 아이프레임-->
+        <iframe name="footer" width="860px" height="400px" ></iframe>
+    </footer>
+    <footer class="footer2"><!--도움말 구역 추가-->
+        <hr>&nbsp;
+        <details>
+            <summary>도움말</summary>
+            <div class="content">: 악기를 선택하고, 마우스 클릭 또는 키보드로 악기를 연주합니다.
+                연주를 불러오거나 녹음해서 재생한 후, 다른 악기와 함께 합주를 즐겨보세요!</div>
+        </details><br><br>&nbsp;
+        <details>
+            <summary>제작자</summary>
+            <div class="content">: 동국대학교 멀티미디어공학과 2022112471 이병현</div>
+        </details><br><br>&nbsp;
+        <details>
+            <summary>오류 신고</summary>
+            <div class="content">: pilot803@naver.com</div>
+        </details>      
+    </footer>
+    <script src="KeyBand.js"></script><!--스크립트 작성부분 추가, 외부 파일 불러옴-->
+</body>
+</html>

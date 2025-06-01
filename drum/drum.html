@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>drum</title>
+    <style>
+        html, body{/*배경은 전체 드럼사진, 드럼사진의 높이에 맞추어 크기조정, 가운데정렬*/
+            margin:0px;
+            background-image: url("drum.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: auto 100vh;
+            background-attachment: fixed; 
+        }
+        div { position: absolute; } /*드럼 쉘 배치를 위한 절대배치*/
+        .drum{position: relative;}/*자식 absolute 위치의 기준이 됨*/
+        .shell{
+            transition: filter 0.2s, box-shadow 0.2s;/*부드러운 효과*/
+            cursor: pointer;/*마우스올릴때 커서변경*/
+            width: 34%;/*배경 드럼의 크기가 34%로 축소된 것을 확인, 각 쉘도 34%로 축소*/
+            height: auto;/*비율유지*/
+        }
+        .shell:active {/*마우스 클릭할 때 그림자효과*/
+            filter: brightness(1.2);
+            filter: drop-shadow(0 0 15px red);
+        }
+        .shell.active {/*드럼 연주할 때 그림자*/
+            filter: brightness(1.2);
+            filter: drop-shadow(0 0 15px red);
+        }
+    </style>
+</head>
+<body>
+    <div class="drum"><!--드럼 배경의 해당 쉘에 잘라낸 이미지를 정확히 올리기-->
+        <div style="left:215px; top:18px;">
+            <img src="ride.png" class="shell" onclick="playShell('ride')">
+            <!--onclick속성을 통해 함수 실행 > 클릭 시 해당 음악재생되도록-->
+        </div>
+        <div style="left:260px; top:147px;">
+            <img src="floor_tom.png" class="shell" onclick="playShell('floor_tom')">
+        </div>
+        <div style="left:315px; top:195px;">
+            <img src="kick.png" class="shell" onclick="playShell('kick')">
+        </div>
+        <div style="left:331px; top:99px;">
+            <img src="middle_tom.png" class="shell" onclick="playShell('middle_tom')">
+        </div>
+        <div style="left:435px; top:105px;">
+            <img src="small_tom.png" class="shell" onclick="playShell('small_tom')">
+        </div>
+        <div style="left:455px; top:160px;">
+            <img src="snare.png" class="shell" onclick="playShell('snare')">
+        </div>
+        <div style="left:493px; top:0px;">
+            <img src="crash.png" class="shell" onclick="playShell('crash')">
+        </div>
+        <div style="left:546px; top:68px;">
+            <img src="hihat.png" class="shell" onclick="playShell('hihat_closed')">
+        </div>
+    </div>
+    <script>
+        //미리 로딩할 드럼 사운드 객체생성
+        const audioMap = {
+            'kick': new Audio('audio/kick.mp3'),
+            'snare': new Audio('audio/snare.mp3'),
+            'hihat_closed': new Audio('audio/hihat_closed.mp3'),
+            'hihat_open': new Audio('audio/hihat_open.mp3'),
+            'crash': new Audio('audio/crash.mp3'),
+            'ride': new Audio('audio/ride.mp3'),
+            'floor_tom': new Audio('audio/floor_tom.mp3'),
+            'middle_tom': new Audio('audio/middle_tom.mp3'),
+            'small_tom': new Audio('audio/small_tom.mp3'),
+        };
+
+        for (let shell in audioMap)//미리 오디오파일 불러옴 > 속도 향상
+            audioMap[shell].preload = "auto";
+
+        function playShell(shell) {//특정 쉘 재생함수
+            const audio = audioMap[shell];//쉘에 맞는 오디오객체 가져옴
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play();//해당 쉘이 존재하면 처음부터 재생
+            }
+            //해당 note에 대응하는 img태그 찾아 active 클래스생성
+            const shells = document.querySelectorAll('.shell');//모든 쉘 이미지요소 가져옴
+            //예외처리 > hihat_open, hihat_closed는 hihat.png 하나에 효과 적용
+            if (shell === 'hihat_open' || shell === 'hihat_closed') {
+                shells.forEach(shell => {
+                    if (shell.src.includes('hihat.png')) {
+                        shell.classList.add('active');//active클래스 추가
+                        setTimeout(() => shell.classList.remove('active'), 100);//0.1초간 유지 (드럼은 연타가 많으므로)
+                    }
+                });
+                return;
+            }
+            //onclick속성에 해당 note 이름이 포함된 키를 찾음
+            shells.forEach(el => {
+                if (el.getAttribute('onclick')?.includes(`'${shell}'`)) {
+                    el.classList.add('active');//active클래스 추가
+                    setTimeout(() => el.classList.remove('active'), 100);//0.1초간 유지 (드럼은 연타가 많으므로)
+                }
+            });
+        }
+        const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
+            'b': 'kick',
+            'j': 'snare',
+            'k': 'hihat_closed',
+            'l': 'hihat_open',
+            'u': 'crash',
+            't': 'ride',
+            'f': 'floor_tom',
+            'g': 'middle_tom',
+            'h': 'small_tom'
+        };
+        document.addEventListener('keydown', function(event) {//키보드 입력으로 실행되는 이벤트
+            const shell = keyMap[event.key.toLowerCase()];//키를 소문자로 변환한 후 해당 건반음가져옴
+            if (shell)//해당하는 음이 있다면
+                playShell(shell);//해당하는 음 재생(함수 실행)
+        });
+    </script>
+</body>
+</html>
