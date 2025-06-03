@@ -1,17 +1,25 @@
 const hour = new Date().getHours();//현재시간 객체 생성
-    if (hour >= 18 || hour < 6)//밤 시간일 경우
-        //밤하늘 이미지로 배경이미지 변환
-        document.body.style.backgroundImage = 'url("background_night.png")';
-        
+if (hour >= 18 || hour < 6)//밤 시간일 경우
+    //밤하늘 이미지로 배경이미지 변환
+    document.body.style.backgroundImage = 'url("background_night.png")';
+
+// 페이지 로딩 시 비활성화
+document.querySelector(".recode_button").classList.add("disabled");
+
 function selectInstrument(name) {
     document.getElementById("selectedInstrument").textContent = name;
+}
+
+function selectInstrument(name) {
+    document.getElementById("selectedInstrument").textContent = name;
+    document.querySelector(".recode_button").classList.remove("disabled");
 }
 
 let recordInterval = null;//setInterval 변수
 let recordSeconds = 0;//초 단위 변수
 
-
-let audioContext = null;
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioPlayerSource = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 let destination = null;
@@ -32,7 +40,6 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
         }, 1000);
 
         // 🎙️ 녹음 설정
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
         destination = audioContext.createMediaStreamDestination();
         recordedChunks = [];
 
@@ -50,7 +57,18 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
             downloadLink.href = url;
             downloadLink.download = "recording.webm";
         };
-
+        const tmpiframe = document.querySelector("iframe[name='footer']");
+        tmpiframe?.contentWindow?.postMessage({ type: "playDummyAudio" }, "*");
+                const audioPlayer = document.getElementById("playback");
+        if (!audioPlayerSource) {
+            audioPlayerSource = audioContext.createMediaElementSource(audioPlayer);
+            audioPlayerSource.connect(audioContext.destination);
+            audioPlayerSource.connect(destination);
+        } else {
+            // 이미 연결되어 있으므로 새로 연결하지 않음
+            // 단, 새로운 destination에도 연결 필요
+            audioPlayerSource.connect(destination);
+        }
         mediaRecorder.start();
         audioContext.resume();
 
@@ -76,18 +94,20 @@ document.getElementById("upload_file").addEventListener("change", function (even
     const audioPlayer = document.getElementById("playback");
 
     if (file) {
-        if (currentAudioURL) {//메모리 누수 방지
+        if (currentAudioURL) {
             URL.revokeObjectURL(currentAudioURL);
         }
 
         currentAudioURL = URL.createObjectURL(file);
         audioPlayer.src = currentAudioURL;
 
-        //다운로드 링크 설정
         const downloadLink = document.getElementById("download_link");
         downloadLink.href = currentAudioURL;
-        downloadLink.download = file.name;//원래 파일명으로 다운로드
+        downloadLink.download = file.name;
     }
+
+    // 🔁 input을 초기화해서 동일 파일 재선택도 인식되도록
+    event.target.value = "";
 });
 
 document.addEventListener('keydown', function (e) {//키보드 입력 발생하면
@@ -97,6 +117,7 @@ document.addEventListener('keydown', function (e) {//키보드 입력 발생하�
         iframe.contentWindow.focus();
     }
 });
+
 window.addEventListener("message", (event) => {
     if (event.data.type === "forwardAudio") {
         const audio = document.createElement("audio");
