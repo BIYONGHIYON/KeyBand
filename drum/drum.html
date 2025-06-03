@@ -21,12 +21,10 @@
             height: auto;/*비율유지*/
         }
         .shell:active {/*마우스 클릭할 때 그림자효과*/
-            filter: brightness(1.2);
-            filter: drop-shadow(0 0 15px red);
+            filter: brightness(1.2) drop-shadow(0 0 10px red);
         }
         .shell.active {/*드럼 연주할 때 그림자*/
-            filter: brightness(1.2);
-            filter: drop-shadow(0 0 15px red);
+            filter: brightness(1.2) drop-shadow(0 0 10px red);
         }
     </style>
 </head>
@@ -80,19 +78,26 @@
         function playShell(shell) {
             const audio = audioMap[shell];
             if (audio) {
-                const clone = audio.cloneNode(); // 오디오 복제
-                clone.play(); // 복제본 재생
+                const clone = audio.cloneNode();
+                clone.play();
 
-                playingAudios.push(clone); // 배열에 저장하여 참조 유지
+                // ✅ 부모에게 전달 (녹음 중일 경우)
+                if (window.forwardToParent) {
+                    window.parent.postMessage({
+                        type: "forwardAudio",
+                        src: clone.src
+                    }, "*");
+                }
+
+                playingAudios.push(clone);
                 clone.addEventListener('ended', () => {
                     const idx = playingAudios.indexOf(clone);
-                    if (idx !== -1) playingAudios.splice(idx, 1); // 재생 완료되면 제거
+                    if (idx !== -1) playingAudios.splice(idx, 1);
                 });
             }
 
             const shells = document.querySelectorAll('.shell');
 
-            // hihat은 hihat.png 하나를 공유하므로 예외 처리
             if (shell === 'hihat_open' || shell === 'hihat_closed') {
                 shells.forEach(el => {
                     if (el.src.includes('hihat.png')) {
@@ -103,7 +108,6 @@
                 return;
             }
 
-            // 나머지 쉘: onclick 속성으로 대상 찾기
             shells.forEach(el => {
                 if (el.getAttribute('onclick')?.includes(`'${shell}'`)) {
                     el.classList.add('active');
@@ -123,10 +127,24 @@
             'g': 'middle_tom',
             'h': 'small_tom'
         };
-        document.addEventListener('keydown', function(event) {//키보드 입력으로 실행되는 이벤트
-            const shell = keyMap[event.key.toLowerCase()];//키를 소문자로 변환한 후 해당 건반음가져옴
-            if (shell)//해당하는 음이 있다면
-                playShell(shell);//해당하는 음 재생(함수 실행)
+        const pressedKeys = new Set(); // 중복 방지를 위한 키 저장소
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key.toLowerCase();
+            if (pressedKeys.has(key)) return; // 이미 누른 키는 무시
+            pressedKeys.add(key);
+
+            const shell = keyMap[key];
+            if (shell) playShell(shell);
+        });
+
+        document.addEventListener('keyup', function(event) {
+            pressedKeys.delete(event.key.toLowerCase());
+        });
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "sendContextInfo") {
+                window.forwardToParent = true;
+            }
         });
     </script>
 </body>
