@@ -176,27 +176,35 @@
         
         const playingAudios = [];
 
-        function playNote(note) {
-            const audio = audioMap[note];
-            if (audio) {
-                const clone = audio.cloneNode();
-                clone.play();
+function playNote(note) {
+    const audio = audioMap[note];
+    if (audio) {
+        const clone = audio.cloneNode();
+        clone.play();
 
-                playingAudios.push(clone);
-                clone.addEventListener('ended', () => {
-                    const idx = playingAudios.indexOf(clone);
-                    if (idx !== -1) playingAudios.splice(idx, 1);
-                });
-            }
-
-            const keys = document.querySelectorAll('.key');
-            keys.forEach(key => {
-                if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
-                    key.classList.add('active');
-                    setTimeout(() => key.classList.remove('active'), 200);
-                }
-            });
+        // 부모로 전송
+        if (window.forwardToParent) {
+            window.parent.postMessage({
+                type: "forwardAudio",
+                src: clone.src
+            }, "*");
         }
+
+        playingAudios.push(clone);
+        clone.addEventListener('ended', () => {
+            const idx = playingAudios.indexOf(clone);
+            if (idx !== -1) playingAudios.splice(idx, 1);
+        });
+    }
+
+    const keys = document.querySelectorAll('.key');
+    keys.forEach(key => {
+        if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
+            key.classList.add('active');
+            setTimeout(() => key.classList.remove('active'), 200);
+        }
+    });
+}
 
         const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
             //왼손
@@ -233,10 +241,24 @@
             '/': 'A_high',
             '\'': 'Bb_high'
         };
-        document.addEventListener('keydown', function(event) {//키보드 입력으로 실행되는 이벤트
-            const note = keyMap[event.key.toLowerCase()];//키를 소문자로 변환한 후 해당 건반음가져옴
-            if (note)//해당하는 음이 있다면
-                playNote(note);//해당하는 음 재생(함수 실행)
+        let pressedKeys = new Set();
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key.toLowerCase();
+            if (pressedKeys.has(key)) return; // 이미 눌린 키는 무시
+            pressedKeys.add(key);
+
+            const note = keyMap[key];
+            if (note) playNote(note);
+        });
+
+        document.addEventListener('keyup', function(event) {
+            pressedKeys.delete(event.key.toLowerCase());
+        });
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "sendContextInfo") {
+                window.forwardToParent = true;
+            }
         });
     </script>
 </body>
