@@ -157,7 +157,6 @@ details {display: inline-flex;} /*디테일 내부 요소가 줄바꿈 없이 �
     position: relative;
     width: 95vw;             /* 창 가로의 절반 */
     max-width: 860px;        /* 원본 최대크기(선택) */
-
     margin: 0 auto;          /* 가운데 정렬(선택) */
 }
 .responsive-iframe {
