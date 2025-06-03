@@ -31,29 +31,29 @@
 <body>
     <div class="drum"><!--드럼 배경의 해당 쉘에 잘라낸 이미지를 정확히 올리기-->
         <div style="left:215px; top:18px;">
-            <img src="ride.png" class="shell" onclick="playShell('ride')">
+            <img src="ride.png" class="shell" data-shell='ride'>
             <!--onclick속성을 통해 함수 실행 > 클릭 시 해당 음악재생되도록-->
         </div>
         <div style="left:260px; top:147px;">
-            <img src="floor_tom.png" class="shell" onclick="playShell('floor_tom')">
+            <img src="floor_tom.png" class="shell" data-shell='floor_tom'>
         </div>
         <div style="left:315px; top:195px;">
-            <img src="kick.png" class="shell" onclick="playShell('kick')">
+            <img src="kick.png" class="shell" data-shell='kick'>
         </div>
         <div style="left:331px; top:99px;">
-            <img src="middle_tom.png" class="shell" onclick="playShell('middle_tom')">
+            <img src="middle_tom.png" class="shell" data-shell='middle_tom'>
         </div>
         <div style="left:435px; top:105px;">
-            <img src="small_tom.png" class="shell" onclick="playShell('small_tom')">
+            <img src="small_tom.png" class="shell" data-shell='small_tom'>
         </div>
         <div style="left:455px; top:160px;">
-            <img src="snare.png" class="shell" onclick="playShell('snare')">
+            <img src="snare.png" class="shell" data-shell='snare'>
         </div>
         <div style="left:493px; top:0px;">
-            <img src="crash.png" class="shell" onclick="playShell('crash')">
+            <img src="crash.png" class="shell" data-shell='crash'>
         </div>
         <div style="left:546px; top:68px;">
-            <img src="hihat.png" class="shell" onclick="playShell('hihat_closed')">
+            <img src="hihat.png" class="shell" data-shell='hihat_closed'>
         </div>
     </div>
     <audio id="dummy_audio" src="dummy.mp3"></audio>
@@ -81,7 +81,6 @@
             if (!audio) return;
 
             if (window.forwardToParent) {
-                // 부모에게만 전달하고 자식은 재생하지 않음
                 window.parent.postMessage({
                     type: "forwardAudio",
                     src: audio.src
@@ -97,10 +96,9 @@
                 });
             }
 
-            const shells = document.querySelectorAll('.shell');
-
+            // 하이햇은 src 기반으로 여전히 분리 처리
             if (shell === 'hihat_open' || shell === 'hihat_closed') {
-                shells.forEach(el => {
+                document.querySelectorAll('.shell').forEach(el => {
                     if (el.src.includes('hihat.png')) {
                         el.classList.add('active');
                         setTimeout(() => el.classList.remove('active'), 100);
@@ -109,12 +107,12 @@
                 return;
             }
 
-            shells.forEach(el => {
-                if (el.getAttribute('onclick')?.includes(`'${shell}'`)) {
-                    el.classList.add('active');
-                    setTimeout(() => el.classList.remove('active'), 100);
-                }
-            });
+            // 일반 드럼은 data-shell 속성 기반으로 처리
+            const shellEl = document.querySelector(`.shell[data-shell="${shell}"]`);
+            if (shellEl) {
+                shellEl.classList.add('active');
+                setTimeout(() => shellEl.classList.remove('active'), 100);
+            }
         }
 
         const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
@@ -153,6 +151,19 @@
             if (event.data.type === "sendContextInfo") {
                 window.forwardToParent = true;
             }
+        });
+        document.querySelectorAll('.shell').forEach(el => {
+            const shell = el.dataset.shell;
+            if (!shell) return;
+
+            // PC용
+            el.addEventListener('click', () => playShell(shell));
+
+            // 모바일용
+            el.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                playShell(shell);
+            });
         });
     </script>
 </body>
