@@ -13,21 +13,25 @@
     </header>
     <nav><!--하이퍼링크와 버튼을 이용해 버튼을 누르면 아이프레임에 해당 악기 이미지 출력-->
         악기를 선택하세요!<br><br>
-        <a href="piano/piano.html", target="footer"><!--클릭시 하단 iframe에 piano.html출력-->
-            <button class="instrument_button" id="piano"
-            onclick="selectInstrument('피아노'); 
-            document.getElementById('instrument_key').src = 'piano/piano_key.png';">
-            <!--피아노 선택버튼, 선택된 악기명 표시하는 함수 호출, 조작법 이미지 피아노로 변경-->
-            </button>&emsp;
-        </a>
-        <a href="drum/drum.html" target="footer"><!--클릭시 하단 iframe에 drum.html출력-->
-            <button class="instrument_button" id="drum"
-            onclick="selectInstrument('드럼'); 
-            document.getElementById('instrument_key').src = 'drum/drum_key.png';">
-            <!--드럼 선택버튼, 선택된 악기명 표시하는 함수 호출, 조작법 이미지 드럼으로 변경-->
-            </button>
-        </a>
-        <br><br>현재 선택된 악기 : <span id="selectedInstrument">없음</span><!--js로 선택된 악기 출력함-->
+        <!-- 피아노 선택 버튼 -->
+        <button class="instrument_button" id="piano"
+            onclick="
+                document.querySelector('iframe[name=footer]').src = 'piano/piano.html';
+                selectInstrument('피아노'); 
+                document.getElementById('instrument_key').src = 'piano/piano_key.png';
+            ">
+        </button>&emsp;
+
+        <!-- 드럼 선택 버튼 -->
+        <button class="instrument_button" id="drum"
+            onclick="
+                document.querySelector('iframe[name=footer]').src = 'drum/drum.html';
+                selectInstrument('드럼'); 
+                document.getElementById('instrument_key').src = 'drum/drum_key.png';
+            ">
+        </button>
+
+        <br><br>현재 선택된 악기 : <span id="selectedInstrument">없음</span>
     </nav>
     <section>
         조작법<br>
