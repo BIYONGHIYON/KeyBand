@@ -136,6 +136,7 @@
             </div>
         </div>
     </div>
+    <audio id="dummy_audio" src="dummy.mp3"></audio>
     <script>
         //각 건반의 오디오 객체를 미리 생성해서 audioMap에 저장
         const audioMap = {
@@ -176,35 +177,35 @@
         
         const playingAudios = [];
 
-function playNote(note) {
-    const audio = audioMap[note];
-    if (audio) {
-        const clone = audio.cloneNode();
-        clone.play();
+        function playNote(note) {
+            const audio = audioMap[note];
+            if (!audio) return;
 
-        // 부모로 전송
-        if (window.forwardToParent) {
-            window.parent.postMessage({
-                type: "forwardAudio",
-                src: clone.src
-            }, "*");
+            if (window.forwardToParent) {
+                // 부모에게만 전달하고 자식은 재생하지 않음
+                window.parent.postMessage({
+                    type: "forwardAudio",
+                    src: audio.src
+                }, "*");
+            } else {
+                const clone = audio.cloneNode();
+                clone.play();
+
+                playingAudios.push(clone);
+                clone.addEventListener('ended', () => {
+                    const idx = playingAudios.indexOf(clone);
+                    if (idx !== -1) playingAudios.splice(idx, 1);
+                });
+            }
+
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
+                    key.classList.add('active');
+                    setTimeout(() => key.classList.remove('active'), 200);
+                }
+            });
         }
-
-        playingAudios.push(clone);
-        clone.addEventListener('ended', () => {
-            const idx = playingAudios.indexOf(clone);
-            if (idx !== -1) playingAudios.splice(idx, 1);
-        });
-    }
-
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-        if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
-            key.classList.add('active');
-            setTimeout(() => key.classList.remove('active'), 200);
-        }
-    });
-}
 
         const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
             //왼손
@@ -256,6 +257,13 @@ function playNote(note) {
             pressedKeys.delete(event.key.toLowerCase());
         });
         window.addEventListener("message", (event) => {
+            if (event.data.type === "playDummyAudio") {
+                const dummy = document.getElementById("dummy_audio");
+                if (dummy) {
+                    dummy.currentTime = 0;
+                    dummy.play().catch(e => console.warn("dummy 재생 실패:", e));
+                }
+            }
             if (event.data.type === "sendContextInfo") {
                 window.forwardToParent = true;
             }
