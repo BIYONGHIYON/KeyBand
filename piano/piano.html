@@ -174,20 +174,26 @@
         for (let note in audioMap)// 미리 오디오파일 불러옴 > 속도 향상
             audioMap[note].preload = "auto";
         
-        
-        function playNote(note) {//특정 음 재생함수
-            const audio = audioMap[note];//note에 맞는 오디오객체 가져옴
+        const playingAudios = [];
+
+        function playNote(note) {
+            const audio = audioMap[note];
             if (audio) {
-                audio.currentTime = 0;
-                audio.play();//해당 음이 존재하면 처음부터 재생
+                const clone = audio.cloneNode();
+                clone.play();
+
+                playingAudios.push(clone);
+                clone.addEventListener('ended', () => {
+                    const idx = playingAudios.indexOf(clone);
+                    if (idx !== -1) playingAudios.splice(idx, 1);
+                });
             }
-            //해당 note에 대응하는 img태그 찾아 active 클래스생성
-            const keys = document.querySelectorAll('.key');//모든 키 이미지요소 가져옴
+
+            const keys = document.querySelectorAll('.key');
             keys.forEach(key => {
-                //onclick속성에 해당 note 이름이 포함된 키를 찾음
                 if (key.getAttribute('onclick')?.includes(`'${note}'`)) {
-                    key.classList.add('active');//active클래스 추가
-                    setTimeout(() => key.classList.remove('active'), 200);//0.2초간 유지
+                    key.classList.add('active');
+                    setTimeout(() => key.classList.remove('active'), 200);
                 }
             });
         }
