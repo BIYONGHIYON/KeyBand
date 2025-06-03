@@ -3,29 +3,69 @@ const hour = new Date().getHours();//현재시간 객체 생성
         //밤하늘 이미지로 배경이미지 변환
         document.body.style.backgroundImage = 'url("background_night.png")';
         
-function selectInstrument(name) {//매개변수로 선택된 악기 이름 
-    document.getElementById("selectedInstrument").innerText = name;//selectedInstrument에 name값 출력
+function selectInstrument(name) {
+    document.getElementById("selectedInstrument").textContent = name;
 }
 
 let recordInterval = null;//setInterval 변수
 let recordSeconds = 0;//초 단위 변수
+
+
+let audioContext = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let destination = null;
 //체크박스 체크 감지
 document.getElementById("recode_check").addEventListener("change", function (e) {
-    const timerDisplay = document.getElementById("record_time");//녹음 시간 표시할 상수
+    const timerDisplay = document.getElementById("record_time");
 
-    if (e.target.checked) {//체크박스 체크시
-        recordSeconds = 0;//녹음 시간 초기화
-        timerDisplay.textContent = "00:00";//초기 화면 표시
-
-        recordInterval = setInterval(() => {//1초마다 실행되는 타이머 설정
-            recordSeconds++; //경과 시간 1초 증가
+    if (e.target.checked) {
+        // ⏱️ 타이머 시작
+        recordSeconds = 0;
+        timerDisplay.textContent = "00:00";
+        if (recordInterval) clearInterval(recordInterval);
+        recordInterval = setInterval(() => {
+            recordSeconds++;
             const minutes = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
             const seconds = String(recordSeconds % 60).padStart(2, '0');
-            timerDisplay.textContent = `${minutes}:${seconds}`;//화면에 "분:초"로 표시
-        }, 1000); //1초 간격
-    } else {//체크 해제시
-        clearInterval(recordInterval);//타이머 중지
-        timerDisplay.textContent = "";//화면에서 시간 제거
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }, 1000);
+
+        // 🎙️ 녹음 설정
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        destination = audioContext.createMediaStreamDestination();
+        recordedChunks = [];
+
+        mediaRecorder = new MediaRecorder(destination.stream);
+        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+
+            // 🎧 결과 재생
+            const audioPlayer = document.getElementById("playback");
+            audioPlayer.src = url;
+
+            const downloadLink = document.getElementById("download_link");
+            downloadLink.href = url;
+            downloadLink.download = "recording.webm";
+        };
+
+        mediaRecorder.start();
+        audioContext.resume();
+
+        // 📩 iframe에 오디오 context 연결 요청
+        const iframe = document.querySelector("iframe[name='footer']");
+        iframe?.contentWindow?.postMessage({ type: "sendContextInfo" }, "*");
+
+    } else {
+        // ⏹️ 타이머 & 녹음 종료
+        if (recordInterval) clearInterval(recordInterval);
+        timerDisplay.textContent = "";
+
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+        }
     }
 });
 
@@ -55,5 +95,22 @@ document.addEventListener('keydown', function (e) {//키보드 입력 발생하�
     if (iframe && iframe.contentWindow) {
         //iframe 내부에 포커스 전달
         iframe.contentWindow.focus();
+    }
+});
+window.addEventListener("message", (event) => {
+    if (event.data.type === "forwardAudio") {
+        const audio = document.createElement("audio");
+        audio.src = event.data.src;
+        audio.crossOrigin = "anonymous";
+        audio.volume = 1.0;
+
+        audio.addEventListener("canplaythrough", () => {
+            const source = audioContext.createMediaElementSource(audio);
+            source.connect(audioContext.destination);
+            source.connect(destination);
+            audio.play();
+        });
+
+        audio.load(); // 명시적으로 로딩 시작
     }
 });
