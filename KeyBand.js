@@ -1,3 +1,83 @@
+function handleResponsiveUI() {
+    // --- 1. iframe 스케일 조정 ---
+    const baseWidth = 860;
+    const wrapper = document.querySelector('.responsive-iframe-wrapper');
+    const iframe = document.querySelector('.responsive-iframe');
+    if (wrapper && iframe) {
+        const scale = wrapper.offsetWidth / baseWidth;
+        iframe.style.transform = `scale(${scale})`;
+    }
+
+    // --- 2. 레이아웃 및 요소 크기 동적 조정 ---
+    const width = window.innerWidth;
+    const title = document.querySelector('.title');
+    const subtitle = document.querySelector('.subtitle');
+    const nav = document.querySelector('nav');
+    const section = document.querySelector('section');
+    const aside = document.querySelector('aside');
+
+    if (width <= 800) {
+        // 제목, 버튼 크기 동적 조정
+        if (title)   title.style.fontSize = Math.max(2.2, Math.min(5, width / 100)) + 'em';
+        if (subtitle)subtitle.style.fontSize = Math.max(1, Math.min(1.7, width / 700)) + 'em';
+
+        // 악기버튼
+        document.querySelectorAll('.instrument_button').forEach(btn => {
+            btn.style.width = btn.style.height = Math.max(45, Math.min(80, width / 6)) + 'px';
+            btn.style.backgroundSize = 'cover';
+        });
+
+        // 동그란 버튼/이미지
+        document.querySelectorAll('.upload_button, .recode_button, .download_button').forEach(btn => {
+            btn.style.width = btn.style.height = Math.max(25, Math.min(40, width / 10)) + 'px';
+        });
+        document.querySelectorAll('.upload_img, .recode_img, .download_img').forEach(img => {
+            img.style.width = img.style.height = Math.max(25, Math.min(40, width / 10)) + 'px';
+        });
+
+        // 레이아웃 : section 숨기고 nav/aside 50%씩
+        if (section) section.style.display = 'none';
+        if (nav) {
+            nav.style.display = 'inline-block';
+            nav.style.width = '50%';
+            nav.style.float = 'left';
+        }
+        if (aside) {
+            aside.style.display = 'inline-block';
+            aside.style.width = '50%';
+            aside.style.float = 'left';
+        }
+    } else {
+        // 크기 및 레이아웃 원래대로
+        if (title) title.style.fontSize = '';
+        if (subtitle) subtitle.style.fontSize = '';
+        document.querySelectorAll('.instrument_button').forEach(btn => {
+            btn.style.width = btn.style.height = '';
+            btn.style.backgroundSize = '';
+        });
+        document.querySelectorAll('.upload_button, .recode_button, .download_button').forEach(btn => {
+            btn.style.width = btn.style.height = '';
+        });
+        document.querySelectorAll('.upload_img, .recode_img, .download_img').forEach(img => {
+            img.style.width = img.style.height = '';
+        });
+
+        if (section) section.style.display = '';
+        if (nav) {
+            nav.style.display = '';
+            nav.style.width = '';
+            nav.style.float = '';
+        }
+        if (aside) {
+            aside.style.display = '';
+            aside.style.width = '';
+            aside.style.float = '';
+        }
+    }
+}
+
+window.addEventListener('DOMContentLoaded', handleResponsiveUI);
+window.addEventListener('resize', handleResponsiveUI);
 const hour = new Date().getHours();//현재시간 객체 생성
 if (hour >= 18 || hour < 6)//밤 시간일 경우
     //밤하늘 이미지로 배경이미지 변환
