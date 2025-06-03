@@ -56,6 +56,7 @@
             <img src="hihat.png" class="shell" onclick="playShell('hihat_closed')">
         </div>
     </div>
+    <audio id="dummy_audio" src="dummy.mp3"></audio>
     <script>
         //미리 로딩할 드럼 사운드 객체생성
         const audioMap = {
@@ -77,17 +78,17 @@
 
         function playShell(shell) {
             const audio = audioMap[shell];
-            if (audio) {
+            if (!audio) return;
+
+            if (window.forwardToParent) {
+                // 부모에게만 전달하고 자식은 재생하지 않음
+                window.parent.postMessage({
+                    type: "forwardAudio",
+                    src: audio.src
+                }, "*");
+            } else {
                 const clone = audio.cloneNode();
                 clone.play();
-
-                // ✅ 부모에게 전달 (녹음 중일 경우)
-                if (window.forwardToParent) {
-                    window.parent.postMessage({
-                        type: "forwardAudio",
-                        src: clone.src
-                    }, "*");
-                }
 
                 playingAudios.push(clone);
                 clone.addEventListener('ended', () => {
@@ -142,6 +143,13 @@
             pressedKeys.delete(event.key.toLowerCase());
         });
         window.addEventListener("message", (event) => {
+            if (event.data.type === "playDummyAudio") {
+                const dummy = document.getElementById("dummy_audio");
+                if (dummy) {
+                    dummy.currentTime = 0;
+                    dummy.play().catch(e => console.warn("dummy 재생 실패:", e));
+                }
+            }
             if (event.data.type === "sendContextInfo") {
                 window.forwardToParent = true;
             }
