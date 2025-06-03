@@ -1,3 +1,16 @@
+function isIOS() {
+    return /iP(hone|ad|od)/.test(navigator.userAgent);
+}
+function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+if (isIOS() && isSafari()) {
+    // iOS 사파리: 녹음기능 비활성화
+    document.querySelector(".recode_button").classList.add("disabled");
+    // 안내 메시지
+    alert("iOS Safari에서는 녹음 기능이 지원되지 않습니다.");
+}
+
 function handleResponsiveUI() {
     // --- 1. iframe 스케일 조정 ---
     const baseWidth = 860;
@@ -147,7 +160,7 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
         mediaRecorder = new MediaRecorder(destination.stream);
         mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
         mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
             const url = URL.createObjectURL(blob);
 
             // 🎧 결과 재생
@@ -156,7 +169,7 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
 
             const downloadLink = document.getElementById("download_link");
             downloadLink.href = url;
-            downloadLink.download = "KeyBand_recording.wav";
+            downloadLink.download = "KeyBand_recording.webm";
         };
         const tmpiframe = document.querySelector("iframe[name='footer']");
         tmpiframe?.contentWindow?.postMessage({ type: "playDummyAudio" }, "*");
