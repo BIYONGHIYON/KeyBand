@@ -19,20 +19,31 @@ function handleResponsiveUI() {
     if (width <= 800) {
         // 제목, 버튼 크기 동적 조정
         if (title)   title.style.fontSize = Math.max(2.2, Math.min(5, width / 100)) + 'em';
-        if (subtitle)subtitle.style.fontSize = Math.max(1, Math.min(1.7, width / 700)) + 'em';
-
+        if (subtitle){
+            subtitle.style.fontSize = Math.max(1, Math.min(1.7, width / 700)) + 'em';
+            subtitle.style.marginTop = Math.max(-30, Math.min(-30, -width / 50)) + 'px';
+        }
+        // REC 텍스트, 타이머 숨기기
+        document.querySelectorAll('.recode_text, #record_time').forEach(el => {
+            el.style.display = 'none';
+        });
         // 악기버튼
         document.querySelectorAll('.instrument_button').forEach(btn => {
             btn.style.width = btn.style.height = Math.max(45, Math.min(80, width / 6)) + 'px';
             btn.style.backgroundSize = 'cover';
         });
+        // nav/aside 폰트 크기 조정 (예시: 13~19px)
+        const navFontSize = Math.max(13, Math.min(19, width / 45)) + 'px';
+        const AsideFontSize = Math.max(8, Math.min(17, width / 60)) + 'px';
+        if (nav)   nav.style.fontSize = navFontSize;
+        if (aside) aside.style.fontSize = AsideFontSize;
 
         // 동그란 버튼/이미지
         document.querySelectorAll('.upload_button, .recode_button, .download_button').forEach(btn => {
             btn.style.width = btn.style.height = Math.max(25, Math.min(40, width / 10)) + 'px';
         });
         document.querySelectorAll('.upload_img, .recode_img, .download_img').forEach(img => {
-            img.style.width = img.style.height = Math.max(25, Math.min(40, width / 10)) + 'px';
+            img.style.width = img.style.height = 20 + 'px';
         });
 
         // 레이아웃 : section 숨기고 nav/aside 50%씩
@@ -48,9 +59,19 @@ function handleResponsiveUI() {
             aside.style.float = 'left';
         }
     } else {
+        // REC 텍스트, 타이머 다시 보이게(원래대로)
+        document.querySelectorAll('.recode_text, #record_time').forEach(el => {
+            el.style.display = '';
+        });
         // 크기 및 레이아웃 원래대로
         if (title) title.style.fontSize = '';
-        if (subtitle) subtitle.style.fontSize = '';
+        if (subtitle){
+            subtitle.style.fontSize = '';
+            subtitle.style.marginTop = '';
+        } 
+        // nav/aside 폰트 크기 원복
+        if (nav)   nav.style.fontSize = '';
+        if (aside) aside.style.fontSize = '';
         document.querySelectorAll('.instrument_button').forEach(btn => {
             btn.style.width = btn.style.height = '';
             btn.style.backgroundSize = '';
@@ -126,7 +147,7 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
         mediaRecorder = new MediaRecorder(destination.stream);
         mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
         mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            const blob = new Blob(recordedChunks, { type: 'audio/wav' });
             const url = URL.createObjectURL(blob);
 
             // 🎧 결과 재생
@@ -135,7 +156,7 @@ document.getElementById("recode_check").addEventListener("change", function (e) 
 
             const downloadLink = document.getElementById("download_link");
             downloadLink.href = url;
-            downloadLink.download = "recording.webm";
+            downloadLink.download = "KeyBand_recording.wav";
         };
         const tmpiframe = document.querySelector("iframe[name='footer']");
         tmpiframe?.contentWindow?.postMessage({ type: "playDummyAudio" }, "*");
