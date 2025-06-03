@@ -75,32 +75,43 @@
         for (let shell in audioMap)//미리 오디오파일 불러옴 > 속도 향상
             audioMap[shell].preload = "auto";
 
-        function playShell(shell) {//특정 쉘 재생함수
-            const audio = audioMap[shell];//쉘에 맞는 오디오객체 가져옴
+        const playingAudios = []; // 재생 중인 오디오 참조 보관용 (가비지 컬렉션 방지)
+
+        function playShell(shell) {
+            const audio = audioMap[shell];
             if (audio) {
-                audio.currentTime = 0;
-                audio.play();//해당 쉘이 존재하면 처음부터 재생
+                const clone = audio.cloneNode(); // 오디오 복제
+                clone.play(); // 복제본 재생
+
+                playingAudios.push(clone); // 배열에 저장하여 참조 유지
+                clone.addEventListener('ended', () => {
+                    const idx = playingAudios.indexOf(clone);
+                    if (idx !== -1) playingAudios.splice(idx, 1); // 재생 완료되면 제거
+                });
             }
-            //해당 note에 대응하는 img태그 찾아 active 클래스생성
-            const shells = document.querySelectorAll('.shell');//모든 쉘 이미지요소 가져옴
-            //예외처리 > hihat_open, hihat_closed는 hihat.png 하나에 효과 적용
+
+            const shells = document.querySelectorAll('.shell');
+
+            // hihat은 hihat.png 하나를 공유하므로 예외 처리
             if (shell === 'hihat_open' || shell === 'hihat_closed') {
-                shells.forEach(shell => {
-                    if (shell.src.includes('hihat.png')) {
-                        shell.classList.add('active');//active클래스 추가
-                        setTimeout(() => shell.classList.remove('active'), 100);//0.1초간 유지 (드럼은 연타가 많으므로)
+                shells.forEach(el => {
+                    if (el.src.includes('hihat.png')) {
+                        el.classList.add('active');
+                        setTimeout(() => el.classList.remove('active'), 100);
                     }
                 });
                 return;
             }
-            //onclick속성에 해당 note 이름이 포함된 키를 찾음
+
+            // 나머지 쉘: onclick 속성으로 대상 찾기
             shells.forEach(el => {
                 if (el.getAttribute('onclick')?.includes(`'${shell}'`)) {
-                    el.classList.add('active');//active클래스 추가
-                    setTimeout(() => el.classList.remove('active'), 100);//0.1초간 유지 (드럼은 연타가 많으므로)
+                    el.classList.add('active');
+                    setTimeout(() => el.classList.remove('active'), 100);
                 }
             });
         }
+
         const keyMap = {//키보드 입력을 통해 재생하기 위한 배열
             'b': 'kick',
             'j': 'snare',
