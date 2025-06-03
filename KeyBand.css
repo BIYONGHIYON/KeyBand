@@ -147,3 +147,25 @@ details {display: inline-flex;} /*디테일 내부 요소가 줄바꿈 없이 �
     max-height: 100%;
     object-fit: contain;
 }
+@media (max-height:1100px) {
+    .footer2{ display: none; }
+}
+@media (max-width:800px) {
+    .footer2{ display: none; }
+}
+.responsive-iframe-wrapper {
+    position: relative;
+    width: 95vw;             /* 창 가로의 절반 */
+    max-width: 860px;        /* 원본 최대크기(선택) */
+
+    margin: 0 auto;          /* 가운데 정렬(선택) */
+}
+.responsive-iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 860px;    /* 원본 고정 */
+    height: 400px;   /* 원본 고정 */
+    border: 4px solid;
+    border-radius: 15px;
+    transform-origin: 0 0;
+}
